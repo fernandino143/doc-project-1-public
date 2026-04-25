@@ -1,0 +1,59 @@
+name: Local NAO CENTRALIZADA
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  local-doc-check:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Print execution context
+        run: |
+          echo "========================================"
+          echo "LOCAL WORKFLOW EXECUTION"
+          echo "========================================"
+          echo "Repository: $GITHUB_REPOSITORY"
+          echo "Project: ${GITHUB_REPOSITORY##*/}"
+          echo "Workflow: $GITHUB_WORKFLOW"
+          echo "Run ID: $GITHUB_RUN_ID"
+          echo "Run Number: $GITHUB_RUN_NUMBER"
+          echo "Actor: $GITHUB_ACTOR"
+          echo "Branch: $GITHUB_REF_NAME"
+          echo "Commit: $GITHUB_SHA"
+          echo "========================================"
+
+      - name: List markdown files
+        run: |
+          echo "Markdown files found:"
+          find . -name "*.md" -type f | sort || true
+
+      - name: Validate root README exists
+        run: |
+          if [ ! -f README.md ]; then
+            echo "README.md not found in repository root"
+            exit 1
+          fi
+
+          echo "README.md found"
+
+      - name: Generate local workflow output
+        run: |
+          mkdir -p output
+          echo "Repository: $GITHUB_REPOSITORY" > output/local-result.txt
+          echo "Project: ${GITHUB_REPOSITORY##*/}" >> output/local-result.txt
+          echo "Workflow: $GITHUB_WORKFLOW" >> output/local-result.txt
+          echo "Run ID: $GITHUB_RUN_ID" >> output/local-result.txt
+          echo "Timestamp: $(date)" >> output/local-result.txt
+
+      - name: Upload local workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: local-doc-check-${{ github.event.repository.name }}
+          path: output/

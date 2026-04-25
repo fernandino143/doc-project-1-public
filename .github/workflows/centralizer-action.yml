@@ -1,0 +1,29 @@
+name: Doc Check
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  call-central-doc-check:
+    uses: fernandino143/centralizador-de-actions/.github/workflows/generic-doc-check.yml@main
+    with:
+      project_name: doc-project-1-private
+
+  post-step:
+    runs-on: self-hosted
+    needs: call-central-doc-check
+
+    steps:
+      - name: Print message after central workflow
+       run: |
+         echo "========================================"
+         echo "CALLER WORKFLOW CONTINUED"
+         echo "========================================"
+         echo "Project: ${GITHUB_REPOSITORY##*/}"
+         echo "Repository: $GITHUB_REPOSITORY"
+         echo "Run ID: $GITHUB_RUN_ID"
+         echo "Output vindo da centralizada: ${{ needs.call-central-doc-check.outputs.execution_id }}"
+         echo "========================================"
